@@ -1,3 +1,8 @@
-DATABASE_URL = (
-    "postgresql+psycopg://worldcritical:worldcritical@localhost:5432/worldcritical"
-)
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
