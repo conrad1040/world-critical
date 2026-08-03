@@ -11,7 +11,7 @@ def refresh_event_text() -> int:
 
     with SessionLocal() as session:
         events = session.scalars(
-            select(Event).where(Event.summary == Event.title)
+            select(Event).where(Event.needs_refresh.is_(True))
         ).all()
 
         for event in events:
@@ -32,6 +32,7 @@ def refresh_event_text() -> int:
 
             event.title = title
             event.summary = summary
+            event.needs_refresh = False
             updated_count += 1
 
             session.commit()

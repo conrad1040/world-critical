@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Boolean, DateTime, Integer, String
 
 from app.database.base import Base
 
@@ -28,6 +29,12 @@ class Event(Base):
     String(50),
     default="Other",
     )
+
+    needs_refresh: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+    )
+
     status: Mapped[str] = mapped_column(String(50), default="Candidate")
 
     created_at: Mapped[datetime] = mapped_column(

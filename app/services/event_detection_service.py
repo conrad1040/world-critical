@@ -37,7 +37,9 @@ def detect_events() -> int:
                     summary=create_event_summary(article.title),
                     importance_score=0,
                     status="Candidate",
+                    needs_refresh=True,
                 )
+
                 session.add(matched_event)
                 session.flush()
 
@@ -45,6 +47,7 @@ def detect_events() -> int:
                 created_count += 1
 
             article.event_id = matched_event.id
+            matched_event.needs_refresh = True
 
         session.commit()
 
