@@ -42,6 +42,11 @@ def get_event(event_id: int) -> dict | None:
             "id": event.id,
             "title": event.title,
             "summary": event.summary,
+            "why_it_matters": event.why_it_matters,
+            "what_happens_next": event.what_happens_next,
+            "impact_scope": event.impact_scope,
+            "confidence": event.confidence,
+            "homepage": event.homepage,
             "category": event.category,
             "importance_score": event.importance_score,
             "status": event.status,
@@ -51,4 +56,5 @@ def get_event(event_id: int) -> dict | None:
             "updated_at": event.updated_at.isoformat(),
             "sources": sorted(sources),
             "articles": article_list,
+            "editorial_priority": event.editorial_priority,
         }

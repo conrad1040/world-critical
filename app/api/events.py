@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.get("/events")
 def read_events():
-    return {"events": get_events()}
+    return get_events()
 
 
 @router.get(

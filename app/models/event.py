@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String
+from sqlalchemy import Boolean, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Boolean, DateTime, Integer, String
 
 from app.database.base import Base
 
@@ -15,19 +14,54 @@ class Event(Base):
     title: Mapped[str] = mapped_column(String(255))
     summary: Mapped[str] = mapped_column(String(1000))
 
-    importance_score: Mapped[int] = mapped_column(Integer, default=0)
+    why_it_matters: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
 
-    article_count: Mapped[int] = mapped_column(Integer, default=0)
-    source_count: Mapped[int] = mapped_column(Integer, default=0)
+    what_happens_next: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
 
-    category: Mapped[str] = mapped_column(
-    String(50),
-    default="Unknown",
+    impact_scope: Mapped[str] = mapped_column(
+        String(50),
+        default="Unknown",
+    )
+
+    confidence: Mapped[str] = mapped_column(
+        String(20),
+        default="Developing",
+    )
+
+    editorial_priority: Mapped[str] = mapped_column(
+        String(20),
+        default="Background",
+    )
+
+    homepage: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+    )
+
+    importance_score: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+    )
+
+    article_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+    )
+
+    source_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
     )
 
     category: Mapped[str] = mapped_column(
-    String(50),
-    default="Other",
+        String(50),
+        default="Other",
     )
 
     needs_refresh: Mapped[bool] = mapped_column(
@@ -35,7 +69,10 @@ class Event(Base):
         default=True,
     )
 
-    status: Mapped[str] = mapped_column(String(50), default="Candidate")
+    status: Mapped[str] = mapped_column(
+        String(50),
+        default="Candidate",
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,

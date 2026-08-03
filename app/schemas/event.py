@@ -14,6 +14,11 @@ class EventResponse(BaseModel):
     id: int
     title: str
     summary: str
+    why_it_matters: str | None
+    what_happens_next: str | None
+    impact_scope: str
+    confidence: str
+    homepage: bool
     category: str
     importance_score: int
     status: str
@@ -23,3 +28,4 @@ class EventResponse(BaseModel):
     updated_at: datetime
     sources: list[str]
     articles: list[ArticleResponse]
+    editorial_priority: str

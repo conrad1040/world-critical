@@ -3,7 +3,6 @@ from sqlalchemy import select
 from app.database.session import SessionLocal
 from app.models.article import Article
 from app.models.event import Event
-from app.models.source import Source
 from app.services.event_matching_service import titles_match
 from app.services.event_text_service import (
     create_event_summary,

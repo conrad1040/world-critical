@@ -1,106 +1,111 @@
-# World Critical
+# 🌍 World Critical
 
-World Critical is a backend system designed to identify the most important events currently happening in the world.
+World Critical helps busy people stay informed by identifying the few events each day that genuinely matter.
 
-It is not intended to be a traditional news application. Instead of showing an endless stream of articles, categories, opinions, and notifications, World Critical groups reporting into real-world events and displays only events that exceed a defined importance threshold.
+Instead of overwhelming users with hundreds of headlines, World Critical filters global news into concise, high-impact events backed by multiple independent news sources.
 
-The core question World Critical attempts to answer is:
+The goal is simple:
 
-> Has anything happened that is important enough that an informed person should know about it?
+> **What happened today that genuinely changes the world, and should I know about it?**
 
-## Problem
+---
 
-Traditional news applications are designed around articles, publication volume, recency, and user engagement.
+## Why World Critical?
 
-This creates several problems:
+Modern news is optimized for engagement.
 
-* The same event appears as many separate articles.
-* Important events compete with entertainment and low-impact stories.
-* Users are encouraged to keep scrolling.
-* Heavy media coverage can appear more important than actual consequences.
-* Users are rarely told when they are fully caught up.
+More headlines.
 
-World Critical is designed to provide a finite, explainable report rather than an endless feed.
+More scrolling.
 
-## Core Principles
+More clicks.
 
-### Events, Not Articles
+World Critical is optimized for something different:
 
-Articles are treated as evidence about a real-world event.
+- Signal over noise
+- Clarity over sensationalism
+- Context over clickbait
+- Respect for the reader's time
 
-Multiple articles describing the same occurrence should update one event rather than create multiple feed entries.
+If an event isn't important enough that an informed person would likely benefit from knowing about it, it doesn't belong on the homepage.
 
-### Importance, Not Popularity
+---
 
-Events are selected based on estimated consequences, not clicks, social-media activity, publication volume, or public attention.
+## Features
 
-### No Forced Content
+- Aggregates articles from multiple news organizations
+- Groups related articles into a single event
+- Generates concise factual summaries
+- Explains why an event matters
+- Ranks events by significance
+- Displays original reporting from multiple sources
+- Continuously updates as new reporting becomes available
 
-World Critical does not need to display a fixed number of events.
+---
 
-If only three events exceed the threshold, the report should contain three events.
+## Philosophy
 
-If no new events qualify, the system should say so.
+World Critical is not trying to replace journalism.
 
-### Explainable Decisions
+It helps readers understand the most important developments by organizing reporting from trusted news organizations into clear, concise event briefings.
 
-Every published event should include the factors that caused it to qualify.
+Every event should answer four questions:
 
-The system should store the component scores, evidence, confidence level, and reasoning used to calculate the final importance score.
+1. What happened?
+2. Why does it matter?
+3. What is still unknown?
+4. What happens next?
 
-### Meaningful Updates Only
+---
 
-A new article should update an existing event only when it adds materially new information.
+## Technology
 
-Repeated reporting or minor commentary should not trigger a new event or user-facing update.
+Backend
 
-## Phase One Goal
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-Phase One will build a backend-only prototype that can:
+Frontend
 
-1. Retrieve recent news articles from one provider.
-2. Normalize and store the articles.
-3. Detect exact and near-duplicate articles.
-4. Group articles describing the same real-world event.
-5. Create a neutral summary of each event.
-6. Evaluate event credibility.
-7. Score event importance using a transparent algorithm.
-8. Publish only events that exceed the importance threshold.
-9. Update existing events when meaningful new information appears.
-10. Produce a terminal and JSON report of qualifying events.
+- Next.js
+- React
+- Tailwind CSS
 
-## Phase One Does Not Include
+Supporting Services
 
-* Mobile applications
-* User accounts
-* Personalization
-* Local-news weighting
-* Push notifications
-* Comments
-* Advertising
-* Payments
-* Social features
-* A production frontend
-* Real-time streaming infrastructure
+- NewsAPI
+- OpenAI (used internally to assist with event organization and summarization)
 
-## Initial Technical Direction
+---
 
-The Phase One backend is expected to use:
+## Roadmap
 
-* Python
-* FastAPI
-* PostgreSQL
-* SQLAlchemy
-* Alembic
-* Pydantic
-* Docker
-* pytest
-* Git
+### Current
 
-AI services may later be used for article matching, event summaries, structured scoring, and material-change detection.
+- News aggregation
+- Event detection
+- Event summaries
+- Event detail pages
+- Importance scoring
+- Category classification
 
-The final importance score and threshold decision will be calculated by normal application code rather than being decided directly by an AI model.
+### Planned
 
-## Project Status
+- Editorial evaluation engine
+- "Why it matters" generation
+- Timeline of evolving events
+- Search
+- Advanced filtering
+- Better event ranking
+- Source confidence indicators
+- Deployment
 
-World Critical is currently in the initial project setup and design stage.
+---
+
+## Guiding Principle
+
+Respect the user's attention.
+
+World Critical exists to help people become informed—not overwhelmed.
