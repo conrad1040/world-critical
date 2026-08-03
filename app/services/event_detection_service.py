@@ -5,6 +5,10 @@ from app.models.article import Article
 from app.models.event import Event
 from app.models.source import Source
 from app.services.event_matching_service import titles_match
+from app.services.event_text_service import (
+    create_event_summary,
+    create_event_title,
+)
 
 
 def detect_events() -> int:
@@ -29,8 +33,8 @@ def detect_events() -> int:
 
             if matched_event is None:
                 matched_event = Event(
-                    title=article.title,
-                    summary=article.title,
+                    title=create_event_title(article.title),
+                    summary=create_event_summary(article.title),
                     importance_score=0,
                     status="Candidate",
                 )
