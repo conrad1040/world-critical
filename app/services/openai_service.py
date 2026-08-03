@@ -9,8 +9,13 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def generate_event_text(article_titles: list[str]) -> tuple[str, str]:
-    headlines = "\n".join(f"- {title}" for title in article_titles)
+def generate_event_text(
+    article_titles: list[str],
+) -> tuple[str, str]:
+    headlines = "\n".join(
+        f"- {title}"
+        for title in article_titles
+    )
 
     response = client.responses.create(
         model="gpt-5-mini",
@@ -19,16 +24,19 @@ def generate_event_text(article_titles: list[str]) -> tuple[str, str]:
             "event title and one concise factual summary.\n\n"
             f"Headlines:\n{headlines}\n\n"
             "Return only valid JSON with exactly these fields:\n"
-            '{'
+            "{"
             '"title": "...",'
             '"summary": "..."'
-            '}'
+            "}"
         ),
     )
 
     data = json.loads(response.output_text)
 
-    return data["title"], data["summary"]
+    return (
+        str(data["title"]),
+        str(data["summary"]),
+    )
 
 
 def generate_editorial_evaluation(
@@ -38,7 +46,10 @@ def generate_editorial_evaluation(
     category: str,
     importance_score: int,
 ) -> dict[str, str]:
-    headline_text = "\n".join(f"- {title}" for title in headlines)
+    headline_text = "\n".join(
+        f"- {title}"
+        for title in headlines
+    )
 
     response = client.responses.create(
         model="gpt-5-mini",
@@ -82,22 +93,19 @@ def generate_editorial_evaluation(
             "Do not speculate.\n"
             "Do not invent broader significance.\n"
             "Clearly distinguish established facts from uncertainty.\n\n"
-            f"""
-            Editorial Context
-
-            Independent Sources: {source_count}
-            Articles: {article_count}
-            Category: {category}
-            Current Significance Score: {importance_score}
-
-            Headlines:
-            {headline_text}
-
-            """
+            f"Editorial Context\n\n"
+            f"Independent Sources: {source_count}\n"
+            f"Articles: {article_count}\n"
+            f"Category: {category}\n"
+            f"Current Significance Score: {importance_score}\n\n"
+            f"Headlines:\n{headline_text}\n\n"
             "Use the editorial context when making your recommendation.\n"
-            "The significance score is only one signal and should not determine the outcome by itself.\n"
-            "Treat events supported by only one independent source cautiously.\n"
-            "They often belong in Watch until additional reporting confirms the scale and significance.\n\n"
+            "The significance score is only one signal and should not "
+            "determine the outcome by itself.\n"
+            "Treat events supported by only one independent source "
+            "cautiously.\n"
+            "They often belong in Watch until additional reporting confirms "
+            "the scale and significance.\n\n"
             "Return only valid JSON with exactly these fields:\n"
             "{"
             '"summary": "...",'
@@ -113,42 +121,132 @@ def generate_editorial_evaluation(
 
     data = json.loads(response.output_text)
 
-    valid_priorities = {"Critical", "Watch", "Background"}
-    valid_scopes = {"Global", "National", "Regional", "Industry", "Limited"}
-    valid_confidence = {"High", "Medium", "Developing"}
+    valid_priorities = {
+        "Critical",
+        "Watch",
+        "Background",
+    }
 
-    editorial_priority = str(data["editorial_priority"])
-    impact_scope = str(data["impact_scope"])
-    confidence = str(data["confidence"])
+    valid_scopes = {
+        "Global",
+        "National",
+        "Regional",
+        "Industry",
+        "Limited",
+    }
+
+    valid_confidence = {
+        "High",
+        "Medium",
+        "Developing",
+    }
+
+    editorial_priority = str(
+        data["editorial_priority"]
+    )
+
+    impact_scope = str(
+        data["impact_scope"]
+    )
+
+    confidence = str(
+        data["confidence"]
+    )
 
     if editorial_priority not in valid_priorities:
         raise ValueError(
-            f"Invalid editorial priority: {editorial_priority}"
+            "Invalid editorial priority: "
+            f"{editorial_priority}"
         )
 
     if impact_scope not in valid_scopes:
-        raise ValueError(f"Invalid impact scope: {impact_scope}")
+        raise ValueError(
+            f"Invalid impact scope: {impact_scope}"
+        )
 
     if confidence not in valid_confidence:
-        raise ValueError(f"Invalid confidence: {confidence}")
+        raise ValueError(
+            f"Invalid confidence: {confidence}"
+        )
 
     return {
         "summary": str(data["summary"]),
-        "why_it_matters": str(data["why_it_matters"]),
-        "what_happens_next": str(data["what_happens_next"]),
+        "why_it_matters": str(
+            data["why_it_matters"]
+        ),
+        "what_happens_next": str(
+            data["what_happens_next"]
+        ),
         "impact_scope": impact_scope,
         "confidence": confidence,
         "editorial_priority": editorial_priority,
         "reasoning": str(data["reasoning"]),
     }
 
+
+def generate_contextual_match(
+    article_title: str,
+    event_title: str,
+    candidate_titles: list[str],
+) -> dict[str, str | bool]:
+    existing_titles = "\n".join(
+        f"- {title}"
+        for title in candidate_titles
+    )
+
+    if not existing_titles:
+        existing_titles = (
+            "- No existing article titles available"
+        )
+
+    response = client.responses.create(
+        model="gpt-5-mini",
+        input=(
+            "You are an experienced international news editor.\n\n"
+            "Determine whether the new article belongs to the same evolving "
+            "news event as the existing event.\n\n"
+            "Match only when the articles describe the same underlying "
+            "incident or continuing development.\n\n"
+            "Do not match stories merely because they share a topic, country, "
+            "person, industry, disaster type, or conflict.\n\n"
+            f"Existing event title:\n{event_title}\n\n"
+            f"Existing coverage:\n{existing_titles}\n\n"
+            f"New article title:\n{article_title}\n\n"
+            "Return only valid JSON with exactly these fields:\n"
+            "{"
+            '"match": true,'
+            '"confidence": "High|Medium|Low",'
+            '"reasoning": "A concise explanation of whether this is the same event."'
+            "}"
+        ),
+    )
+
     data = json.loads(response.output_text)
 
+    confidence = str(
+        data["confidence"]
+    )
+
+    if confidence not in {
+        "High",
+        "Medium",
+        "Low",
+    }:
+        raise ValueError(
+            "Invalid contextual-match confidence: "
+            f"{confidence}"
+        )
+
+    match_value = data["match"]
+
+    if not isinstance(match_value, bool):
+        raise ValueError(
+            "Contextual match must return a Boolean "
+            f"value, received: {match_value!r}"
+        )
+
     return {
-        "summary": data["summary"],
-        "why_it_matters": data["why_it_matters"],
-        "what_happens_next": data["what_happens_next"],
-        "impact_scope": data["impact_scope"],
-        "confidence": data["confidence"],
-        "homepage": data["homepage"],
+        "match": match_value,
+        "confidence": confidence,
+        "reasoning": str(data["reasoning"]),
     }

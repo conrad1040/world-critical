@@ -6,6 +6,9 @@ from sqlalchemy import select
 from app.database.session import SessionLocal
 from app.models.article import Article
 from app.models.source import Source
+from app.services.article_quality_service import (
+    should_ingest_article,
+)
 from app.services.news_service import fetch_world_news
 
 
@@ -71,6 +74,15 @@ def ingest_top_headlines(
                 continue
 
             if url in existing_urls:
+                continue
+
+            if not should_ingest_article(
+                title=title,
+                source_name=source_name,
+            ):
+                print(
+                    f"Skipped low-value article: {title}"
+                )
                 continue
 
             source = source_cache.get(source_name)
