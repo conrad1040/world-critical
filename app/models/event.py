@@ -1,10 +1,9 @@
-from sqlalchemy import DateTime, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime
 
+from sqlalchemy import DateTime, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class Base(DeclarativeBase):
-    pass
+from app.database.base import Base
 
 
 class Event(Base):
@@ -15,4 +14,9 @@ class Event(Base):
     summary: Mapped[str] = mapped_column(String(1000))
     importance_score: Mapped[int] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String(50))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+    )
+
+    articles = relationship("Article", back_populates="event")
