@@ -62,6 +62,7 @@ def ingest_top_headlines(
         for item in news_items:
             url = item.get("url")
             title = item.get("title")
+            description = item.get("description")
             published_at = item.get("publishedAt")
             source_name = item.get("source", {}).get("name")
 
@@ -118,6 +119,7 @@ def ingest_top_headlines(
 
             article = Article(
                 title=title,
+                description=description,
                 url=url,
                 published_at=published_datetime,
                 source_id=source.id,

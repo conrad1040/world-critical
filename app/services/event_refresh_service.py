@@ -13,7 +13,6 @@ def apply_editorial_rules(
 ) -> str:
     final_priority = recommended_priority
 
-    # Never allow a single-source story directly onto the main briefing.
     if (
         recommended_priority == "Critical"
         and source_count < 2
@@ -28,32 +27,50 @@ def refresh_event_text() -> int:
 
     with SessionLocal() as session:
         events = session.scalars(
-            select(Event).where(Event.needs_refresh.is_(True))
+            select(Event).where(
+                Event.needs_refresh.is_(True)
+            )
         ).all()
 
         for event in events:
-            articles = session.scalars(
+            new_articles = session.scalars(
                 select(Article)
-                .where(Article.event_id == event.id)
+                .where(
+                    Article.event_id == event.id,
+                    Article.processed_for_event.is_(False),
+                )
                 .order_by(Article.published_at)
             ).all()
 
-            if not articles:
+            if not new_articles:
+                event.needs_refresh = False
                 continue
 
-            article_titles = [article.title for article in articles]
+            new_articles_payload = [
+                {
+                    "title": article.title,
+                    "description": article.description or "",
+                }
+                for article in new_articles
+            ]
 
             print(f"Evaluating event {event.id}...")
 
             evaluation = evaluate_event(
-                headlines=article_titles,
+                current_summary=event.summary,
+                current_latest_development=event.latest_development,
+                current_why_it_matters=event.why_it_matters,
+                current_what_happens_next=event.what_happens_next,
+                new_articles=new_articles_payload,
                 source_count=event.source_count,
                 article_count=event.article_count,
                 category=event.category,
                 importance_score=event.importance_score,
             )
 
-            recommended_priority = evaluation["editorial_priority"]
+            recommended_priority = evaluation[
+                "editorial_priority"
+            ]
 
             final_priority = apply_editorial_rules(
                 recommended_priority=recommended_priority,
@@ -62,16 +79,30 @@ def refresh_event_text() -> int:
             )
 
             event.summary = evaluation["summary"]
-            event.why_it_matters = evaluation["why_it_matters"]
-            event.what_happens_next = evaluation["what_happens_next"]
-            event.impact_scope = evaluation["impact_scope"]
+            event.latest_development = evaluation[
+                "latest_development"
+            ]
+            event.why_it_matters = evaluation[
+                "why_it_matters"
+            ]
+            event.what_happens_next = evaluation[
+                "what_happens_next"
+            ]
+            event.impact_scope = evaluation[
+                "impact_scope"
+            ]
             event.confidence = evaluation["confidence"]
             event.editorial_priority = final_priority
 
-            # The application controls what enters the main briefing.
-            event.homepage = final_priority == "Critical"
+            event.homepage = (
+                final_priority == "Critical"
+            )
 
             event.needs_refresh = False
+
+            for article in new_articles:
+                article.processed_for_event = True
+
             updated_count += 1
 
             print(
@@ -81,6 +112,6 @@ def refresh_event_text() -> int:
                 f"{evaluation['reasoning']}"
             )
 
-            session.commit()
+        session.commit()
 
     return updated_count

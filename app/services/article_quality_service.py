@@ -29,6 +29,10 @@ BLOCKED_PHRASES = {
     "episode recap",
     "movie review",
     "tv review",
+
+    # Package and repository listings
+    "added to pypi",
+    "released on pypi",
 }
 
 
@@ -56,6 +60,29 @@ def should_ingest_article(
         return False
 
     if source_name.lower() == "reddit":
+        return False
+
+    # Reject package/version listings such as:
+    # "data-breach-detector 0.3.1"
+    if re.search(
+        r"\b[a-z0-9_-]+\s+v?\d+\.\d+(?:\.\d+)?\b",
+        title_lower,
+    ):
+        return False
+
+    # Reject technical malware-help or sample-identification posts.
+    if (
+        "ransomware" in title_lower
+        and (
+            "extension" in title_lower
+            or " ext" in title_lower
+            or "originalfilename" in title_lower
+            or "ransom note" in title_lower
+            or "decrypt" in title_lower
+            or "locked-" in title_lower
+            or "@" in title_lower
+        )
+    ):
         return False
 
     return True

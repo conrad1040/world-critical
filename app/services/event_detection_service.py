@@ -17,6 +17,9 @@ from app.services.title_similarity_service import (
 from app.services.token_similarity_service import (
     calculate_token_similarity,
 )
+from app.services.world_critical_editor_service import (
+    should_create_world_critical_event,
+)
 
 CONTEXTUAL_MATCH_THRESHOLD = 0.35
 MAX_CONTEXTUAL_CANDIDATES = 3
@@ -45,7 +48,9 @@ def detect_events() -> int:
     with SessionLocal() as session:
         unassigned_articles = session.scalars(
             select(Article)
-            .where(Article.event_id.is_(None))
+            .where(Article.event_id.is_(None),
+            Article.editorial_status == "Pending",
+                   )
             .order_by(Article.published_at)
         ).all()
 
@@ -68,6 +73,19 @@ def detect_events() -> int:
                 ].append(assigned_article.title)
 
         for article in unassigned_articles:
+            decision = should_create_world_critical_event(
+                article.title,
+                article.description,
+            )
+
+            if not decision["should_create_event"]:
+                article.editorial_status = "Rejected"
+                print(
+                    f"Skipped ({decision['rejection_category']}): "
+                    f"{article.title}"
+                )
+                continue
+
             matched_event: Event | None = None
 
             # First, use the fast deterministic matcher.
@@ -82,8 +100,8 @@ def detect_events() -> int:
 
                     break
 
-            # If there is no strong deterministic match, build a
-            # shortlist for contextual evaluation.
+            # If there is no strong deterministic match,
+            # build a shortlist for contextual evaluation.
             if matched_event is None:
                 possible_matches: list[tuple[float, Event]] = []
 
@@ -190,10 +208,10 @@ def detect_events() -> int:
                 )
 
             article.event_id = matched_event.id
+            article.editorial_status = "Accepted"
+            
             matched_event.needs_refresh = True
 
-            # Keep the in-memory article-title map current so later
-            # articles in this same run can use newly attached coverage.
             event_article_titles[matched_event.id].append(
                 article.title
             )

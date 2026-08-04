@@ -19,6 +19,11 @@ class Event(Base):
         nullable=True,
     )
 
+    latest_development: Mapped[str | None] = mapped_column(
+    Text,
+    nullable=True,
+    )
+
     what_happens_next: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
