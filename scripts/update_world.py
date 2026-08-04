@@ -12,10 +12,12 @@ from app.services.event_consolidation_runner import (
 def main() -> None:
     print("=== World Critical Update ===")
 
-    #articles_created = ingest_top_headlines(page_size=10)
-    #print(f"Articles added: {articles_created}")
+    articles_created = ingest_top_headlines(page_size=10)
 
-    print("Skipping ingestion...")
+    if articles_created == 0:
+        print("No new articles ingested.")
+    else:
+        print(f"Articles added: {articles_created}")
 
     events_created = detect_events()
     print(f"Events created: {events_created}")

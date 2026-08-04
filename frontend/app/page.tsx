@@ -13,6 +13,7 @@ type Event = {
   article_count: number;
   source_count: number;
   editorial_priority: string;
+  created_at: string;
   updated_at: string;
 };
 
@@ -34,12 +35,34 @@ const categoryStyles: Record<string, string> = {
   Other: "bg-slate-100 text-slate-600",
 };
 
+function parseUtcDate(dateString: string): Date {
+  const hasTimezone =
+    dateString.endsWith("Z") ||
+    /[+-]\d{2}:\d{2}$/.test(dateString);
+
+  return new Date(hasTimezone ? dateString : `${dateString}Z`);
+}
+
+function formatBriefingDate(dateString: string): string {
+  const date = parseUtcDate(dateString);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
 function EventRow({
   event,
   priority,
+  rank,
 }: {
   event: Event;
   priority: "Critical" | "Watch";
+  rank?: number;
 }) {
   const isCritical = priority === "Critical";
 
@@ -56,54 +79,79 @@ function EventRow({
       className="group block"
     >
       <article className="py-8 transition-colors group-hover:bg-slate-50 sm:px-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <span
-            className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${priorityClass}`}
-          >
-            {priority}
-          </span>
+        <div
+          className={
+            rank !== undefined
+              ? "flex items-start gap-3"
+              : undefined
+          }
+        >
+          {rank !== undefined && (
+            <span
+              className="shrink-0 text-2xl font-black tabular-nums leading-none text-red-300"
+              aria-label={`Priority ${rank}`}
+            >
+              {rank}
+            </span>
+          )}
 
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryClass}`}
-          >
-            {event.category}
-          </span>
-        </div>
+          <div className={rank !== undefined ? "min-w-0 flex-1" : undefined}>
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${priorityClass}`}
+              >
+                {priority}
+              </span>
 
-        <h3 className="mt-5 max-w-4xl text-3xl font-black leading-tight tracking-tight text-slate-950 transition-colors group-hover:text-slate-700 sm:text-4xl">
-          {event.title}
-        </h3>
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryClass}`}
+              >
+                {event.category}
+              </span>
+            </div>
 
-        <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">
-          {event.summary}
-        </p>
-
-        {event.latest_development && (
-          <div className="mt-5 max-w-3xl border-l-2 border-blue-200 pl-4">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
-              Latest development
+            <p className="mt-3 text-xs text-slate-400">
+              First reported {formatBriefingDate(event.created_at)}
+              <span className="mx-2 text-slate-300">·</span>
+              Updated {formatBriefingDate(event.updated_at)}
             </p>
 
-            <p className="mt-2 text-base leading-8 text-slate-700 sm:text-lg">
-              {event.latest_development}
+            <h3 className="mt-4 max-w-4xl text-3xl font-black leading-tight tracking-tight text-slate-950 transition-colors group-hover:text-slate-700 sm:text-4xl">
+              {event.title}
+            </h3>
+
+            <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">
+              {event.summary}
             </p>
+
+            {event.latest_development && (
+              <div className="mt-5 max-w-3xl border-l-2 border-blue-200 pl-4">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
+                  Latest development
+                </p>
+
+                <p className="mt-2 text-base leading-8 text-slate-700 sm:text-lg">
+                  {event.latest_development}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-wrap gap-6 text-sm font-medium text-slate-500">
+              <span>
+                {event.article_count} article
+                {event.article_count === 1 ? "" : "s"}
+              </span>
+
+              <span>
+                {event.source_count} source
+                {event.source_count === 1 ? "" : "s"}
+              </span>
+
+              <span className="font-semibold text-slate-700">
+                Open briefing →
+              </span>
+            </div>
           </div>
-        )}
-
-        <div className="mt-6 flex flex-wrap gap-6 text-sm font-medium text-slate-500">
-          <span>
-            {event.article_count} article
-            {event.article_count === 1 ? "" : "s"}
-          </span>
-
-          <span>
-            {event.source_count} source
-            {event.source_count === 1 ? "" : "s"}
-          </span>
-
-          <span className="font-semibold text-slate-700">
-            Open briefing →
-          </span>
         </div>
       </article>
     </Link>
@@ -178,11 +226,12 @@ export default async function Home() {
             </div>
           ) : (
             <div className="divide-y divide-slate-200">
-              {data.critical.map((event) => (
+              {data.critical.map((event, index) => (
                 <EventRow
                   key={event.id}
                   event={event}
                   priority="Critical"
+                  rank={index + 1}
                 />
               ))}
             </div>

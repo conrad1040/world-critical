@@ -9,6 +9,10 @@ EVERYTHING_URL = "https://newsapi.org/v2/everything"
 
 REQUEST_TIMEOUT_SECONDS = 20
 
+
+class NewsApiRateLimitError(RuntimeError):
+    """NewsAPI quota or rate limit exceeded."""
+
 # These queries improve discovery only.
 # The editorial engine still decides Critical / Watch / Background.
 WORLD_CRITICAL_QUERIES = [
@@ -69,6 +73,11 @@ def _request_articles(
         headers={"X-Api-Key": NEWS_API_KEY},
         timeout=REQUEST_TIMEOUT_SECONDS,
     )
+
+    if response.status_code == 429:
+        raise NewsApiRateLimitError(
+            "NewsAPI rate limit reached."
+        )
 
     response.raise_for_status()
 
@@ -131,23 +140,33 @@ def fetch_world_news(
 ) -> list[dict]:
     articles: list[dict] = []
 
-    # General U.S. headlines give the product a useful
-    # U.S.-focused baseline.
-    articles.extend(
-        fetch_top_headlines(
-            page_size=page_size,
-        )
-    )
-
-    # Topic searches add major domestic and international
-    # developments that may not appear in U.S. top headlines.
-    for query in WORLD_CRITICAL_QUERIES:
+    try:
         articles.extend(
-            fetch_topic_articles(
-                query=query,
+            fetch_top_headlines(
                 page_size=page_size,
             )
         )
+    except NewsApiRateLimitError:
+        print(
+            "NewsAPI rate limit reached. "
+            "Skipping ingestion for this run."
+        )
+        return []
+
+    for query in WORLD_CRITICAL_QUERIES:
+        try:
+            articles.extend(
+                fetch_topic_articles(
+                    query=query,
+                    page_size=page_size,
+                )
+            )
+        except NewsApiRateLimitError:
+            print(
+                "NewsAPI rate limit reached. "
+                "Using articles fetched so far."
+            )
+            break
 
     # The same article may appear in several searches.
     # Deduplicate by URL before ingestion.
