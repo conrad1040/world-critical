@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { getApiUrl } from "../lib/api";
-import { SearchForm } from "./components/search-form";
+import { SiteHeader } from "./components/site-header";
 
 type Event = {
   id: number;
@@ -78,7 +78,7 @@ function EventRow({
       href={`/events/${event.id}`}
       className="group block"
     >
-      <article className="py-8 transition-colors group-hover:bg-slate-50 sm:px-3">
+      <article className="py-6 transition-colors group-hover:bg-slate-50 sm:px-3">
         <div
           className={
             rank !== undefined
@@ -120,12 +120,12 @@ function EventRow({
               {event.title}
             </h3>
 
-            <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">
+            <p className="mt-4 max-w-4xl text-base leading-8 text-slate-600 sm:text-lg">
               {event.summary}
             </p>
 
             {event.latest_development && (
-              <div className="mt-5 max-w-3xl border-l-2 border-blue-200 pl-4">
+              <div className="mt-5 max-w-4xl border-l-2 border-blue-200 pl-4">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
                   Latest development
                 </p>
@@ -170,32 +170,10 @@ export default async function Home() {
   const data: EventsResponse = await response.json();
 
   return (
-    <main className="min-h-screen bg-white">
-      <header className="border-b border-slate-800 bg-slate-950 text-white">
-        <div className="mx-auto max-w-5xl px-6 py-8">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-3xl">
-              🌍
-            </div>
+    <main className="bg-slate-100">
+      <SiteHeader />
 
-            <div>
-              <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
-                World Critical
-              </h1>
-
-              <p className="mt-2 text-sm leading-6 text-slate-300 sm:text-base">
-                The few stories that matter today.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <SearchForm />
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-5xl px-6 py-10">
+      <div className="mx-auto max-w-6xl bg-slate-50 px-6 py-8">
         <section>
           <div className="mb-2 border-b border-slate-300 pb-3">
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-500">
@@ -208,7 +186,7 @@ export default async function Home() {
           </div>
 
           {data.critical.length === 0 ? (
-            <div className="border-b border-slate-200 py-8">
+            <div className="border-b border-slate-200 py-6">
               <p className="text-lg font-semibold text-slate-950">
                 No world-critical events today.
               </p>
@@ -238,7 +216,7 @@ export default async function Home() {
           )}
         </section>
 
-        <section className="mt-12">
+        <section className="mt-8">
           <div className="mb-2 border-b border-slate-300 pb-3">
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-700">
               Monitoring
@@ -255,7 +233,7 @@ export default async function Home() {
           </div>
 
           {data.watch.length === 0 ? (
-            <div className="py-8">
+            <div className="py-6">
               <p className="text-slate-600">
                 Nothing is currently on the watch list.
               </p>

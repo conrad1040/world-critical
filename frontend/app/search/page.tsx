@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { getApiUrl } from "../../lib/api";
-import { SearchForm } from "../components/search-form";
+import { SiteHeader } from "../components/site-header";
 
 type Event = {
   id: number;
@@ -112,28 +112,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-white">
-      <header className="border-b border-slate-800 bg-slate-950 text-white">
-        <div className="mx-auto max-w-5xl px-6 py-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl">
-              🌍
-            </div>
+    <main className="bg-slate-100">
+      <SiteHeader defaultSearchQuery={query} />
 
-            <div>
-              <p className="text-2xl font-black tracking-tight">
-                World Critical
-              </p>
-
-              <p className="text-sm text-slate-300">
-                The few stories that matter today.
-              </p>
-            </div>
-          </Link>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-5xl px-6 py-10">
+      <div className="mx-auto max-w-6xl bg-slate-50 px-6 py-8">
         <Link
           href="/"
           className="text-sm font-semibold text-slate-600 transition hover:text-slate-950"
@@ -149,10 +131,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950">
             {query ? `Results for “${query}”` : "Search events"}
           </h1>
-        </div>
-
-        <div className="mt-6">
-          <SearchForm defaultQuery={query} />
         </div>
 
         {query.length === 0 && (
