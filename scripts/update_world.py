@@ -3,6 +3,9 @@ from app.services.event_category_update_service import update_event_categories
 from app.services.event_detection_service import detect_events
 from app.services.event_metrics_service import update_event_metrics
 from app.services.event_refresh_service import refresh_event_text
+from app.services.event_reporting_times_service import (
+    sync_event_reporting_times,
+)
 from app.services.homepage_curation_service import curate_homepage
 from app.services.importance_scoring_service import update_importance_scores
 from app.services.event_consolidation_runner import (
@@ -30,6 +33,12 @@ def main() -> None:
 
     metrics_updated = update_event_metrics()
     print(f"Event metrics updated: {metrics_updated}")
+
+    reporting_times_updated = sync_event_reporting_times()
+    print(
+        "Event reporting times synced: "
+        f"{reporting_times_updated}"
+    )
 
     scores_updated = update_importance_scores()
     print(f"Importance scores updated: {scores_updated}")

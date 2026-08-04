@@ -97,7 +97,6 @@ class Event(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow,
     )
 
     articles = relationship(

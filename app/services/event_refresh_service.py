@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.database.session import SessionLocal
 from app.models.article import Article
@@ -93,6 +93,22 @@ def refresh_event_text() -> int:
             ]
             event.confidence = evaluation["confidence"]
             event.editorial_priority = final_priority
+
+            latest_published = max(
+                article.published_at
+                for article in new_articles
+            )
+
+            all_latest = session.scalar(
+                select(func.max(Article.published_at)).where(
+                    Article.event_id == event.id
+                )
+            )
+
+            if all_latest is not None:
+                event.updated_at = all_latest
+            else:
+                event.updated_at = latest_published
 
             event.needs_refresh = False
 
