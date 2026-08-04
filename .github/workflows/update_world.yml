@@ -28,6 +28,40 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Validate configuration
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        run: |
+          set -euo pipefail
+          missing=0
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "::error::DATABASE_URL secret is empty or not set."
+            missing=1
+          elif echo "${DATABASE_URL}" | grep -qE 'localhost|127\.0\.0\.1'; then
+            echo "::error::DATABASE_URL points to localhost. GitHub Actions cannot reach your local machine — use a hosted Postgres URL (Neon, Supabase, Railway, etc.)."
+            missing=1
+          fi
+          if [ -z "${OPENAI_API_KEY}" ]; then
+            echo "::error::OPENAI_API_KEY secret is empty or not set."
+            missing=1
+          fi
+          if [ -z "${NEWS_API_KEY}" ]; then
+            echo "::error::NEWS_API_KEY secret is empty or not set."
+            missing=1
+          fi
+          if [ "${missing}" -ne 0 ]; then
+            exit 1
+          fi
+          echo "Secrets present and DATABASE_URL looks reachable from CI."
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: alembic upgrade head
+
       - name: Run World Critical update pipeline
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
