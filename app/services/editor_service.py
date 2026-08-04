@@ -4,6 +4,7 @@ from app.services.openai_service import (
 
 
 def evaluate_event(
+    current_title: str,
     current_summary: str | None,
     current_latest_development: str | None,
     current_why_it_matters: str | None,
@@ -15,6 +16,7 @@ def evaluate_event(
     importance_score: int,
 ) -> dict[str, str]:
     return generate_event_update(
+        current_title=current_title,
         current_summary=current_summary,
         current_latest_development=current_latest_development,
         current_why_it_matters=current_why_it_matters,

@@ -8,6 +8,42 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+EVENT_TITLE_GUIDANCE = (
+    "World Critical event title rules:\n\n"
+    "The homepage title is NOT a traditional news headline. It is the first "
+    "thing a user sees, and its job is to immediately communicate why this "
+    "event deserves the reader's attention.\n\n"
+    "Assume the reader has no prior knowledge of the story.\n\n"
+    "Every title should clearly answer these three questions:\n"
+    "1. What happened?\n"
+    "2. Why is it important?\n"
+    "3. Why should I keep reading?\n\n"
+    "Optimize for immediate understanding rather than traditional "
+    "journalistic style.\n\n"
+    "Avoid:\n"
+    "- Bureaucratic language\n"
+    "- Legislative jargon\n"
+    "- Agency or government terminology that assumes prior knowledge\n"
+    "- Headlines that require context to understand their significance\n"
+    "- Clever or vague headlines\n\n"
+    "Prefer plain, direct language that explains the real-world impact.\n\n"
+    "A title may be more conversational than a newspaper headline, but it "
+    "must remain completely factual and never exaggerate or become "
+    "clickbait.\n\n"
+    "Final check: If a busy adult glanced at this title for two seconds "
+    "while unlocking their phone, would they immediately understand why this "
+    "event matters? If not, rewrite it.\n\n"
+    "The goal is clarity, not clicks. The reader should instinctively think "
+    "\"Oh... I should read that\" because the significance is clear — not "
+    "because the title is sensational.\n\n"
+    "Be concise. One short sentence. Keep under 16 words.\n"
+    "Cut filler words and secondary details — the summary covers those.\n"
+    "Lead with what happened and its main real-world impact.\n\n"
+    "Example (bad): Senate finalizes funding patch that would block Trump's "
+    "grant overhaul\n"
+    "Example (good): Senate passes budget deal, blocking Trump's grant changes\n"
+)
+
 
 def generate_event_text(
     article_titles: list[str],
@@ -20,8 +56,9 @@ def generate_event_text(
     response = client.responses.create(
         model="gpt-5-mini",
         input=(
-            "Rewrite these related news headlines into one short, neutral "
+            "Rewrite these related news headlines into one World Critical "
             "event title and one concise factual summary.\n\n"
+            f"{EVENT_TITLE_GUIDANCE}\n"
             f"Headlines:\n{headlines}\n\n"
             "Return only valid JSON with exactly these fields:\n"
             "{"
@@ -184,6 +221,7 @@ def generate_editorial_evaluation(
     }
 
 def generate_event_update(
+    current_title: str,
     current_summary: str | None,
     current_latest_development: str | None,
     current_why_it_matters: str | None,
@@ -231,9 +269,11 @@ def generate_event_update(
             "would likely regret completely missing today.\n"
 
             "If uncertain between Critical and Watch, prefer Watch.\n\n"
-
+            f"{EVENT_TITLE_GUIDANCE}\n"
+            "Rewrite the title if it reads like a news headline, uses jargon, "
+            "or fails the two-second clarity test. Otherwise keep it.\n\n"
             "CURRENT EVENT\n\n"
-
+            f"Title:\n{current_title}\n\n"
             f"Summary:\n{current_summary or 'None'}\n\n"
             f"Latest Development:\n"
             f"{current_latest_development or 'None'}\n\n"
@@ -259,6 +299,7 @@ def generate_event_update(
             "instead.\n\n"
             "Return only valid JSON with exactly these fields:\n"
             "{"
+            '"title":"...",'
             '"summary":"...",'
             '"latest_development":"...",'
             '"why_it_matters":"...",'
@@ -274,6 +315,7 @@ def generate_event_update(
     data = json.loads(response.output_text)
 
     return {
+        "title": str(data["title"]),
         "summary": str(data["summary"]),
         "latest_development": str(
             data["latest_development"]
@@ -297,6 +339,33 @@ def generate_event_update(
             data["reasoning"]
         ),
     }
+
+
+def generate_event_display_title(
+    current_title: str,
+    summary: str,
+    why_it_matters: str | None,
+    latest_development: str | None,
+) -> str:
+    response = client.responses.create(
+        model="gpt-5-mini",
+        input=(
+            "You are the homepage title editor for World Critical.\n\n"
+            "Rewrite this event title for the homepage.\n\n"
+            f"{EVENT_TITLE_GUIDANCE}\n"
+            f"Current title:\n{current_title}\n\n"
+            f"Summary:\n{summary}\n\n"
+            f"Why it matters:\n{why_it_matters or 'None'}\n\n"
+            f"Latest development:\n"
+            f"{latest_development or 'None'}\n\n"
+            "Return only valid JSON:\n"
+            '{"title":"..."}'
+        ),
+    )
+
+    data = json.loads(response.output_text)
+    return str(data["title"])
+
 
 def generate_contextual_match(
     article_title: str,

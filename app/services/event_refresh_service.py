@@ -57,6 +57,7 @@ def refresh_event_text() -> int:
             print(f"Evaluating event {event.id}...")
 
             evaluation = evaluate_event(
+                current_title=event.title,
                 current_summary=event.summary,
                 current_latest_development=event.latest_development,
                 current_why_it_matters=event.why_it_matters,
@@ -78,6 +79,7 @@ def refresh_event_text() -> int:
                 source_count=event.source_count,
             )
 
+            event.title = evaluation["title"][:255]
             event.summary = evaluation["summary"]
             event.latest_development = evaluation[
                 "latest_development"

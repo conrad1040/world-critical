@@ -7,6 +7,7 @@ from app.services.event_reporting_times_service import (
     sync_event_reporting_times,
 )
 from app.services.homepage_curation_service import curate_homepage
+from app.services.event_title_service import refresh_homepage_event_titles
 from app.services.importance_scoring_service import update_importance_scores
 from app.services.event_consolidation_runner import (
     consolidate_events,
@@ -53,6 +54,9 @@ def main() -> None:
         f"{briefing['watch_count']} watch "
         f"({briefing['mode']})"
     )
+
+    titles_updated = refresh_homepage_event_titles()
+    print(f"Homepage titles rewritten: {titles_updated}")
 
     print("Update complete.")
 
