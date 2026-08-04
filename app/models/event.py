@@ -49,6 +49,16 @@ class Event(Base):
         default=False,
     )
 
+    homepage_section: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+    )
+
+    briefing_rank: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
     importance_score: Mapped[int] = mapped_column(
         Integer,
         default=0,

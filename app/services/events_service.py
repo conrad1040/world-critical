@@ -30,14 +30,20 @@ def get_events() -> dict:
     with SessionLocal() as session:
         critical_events = session.scalars(
             select(Event)
-            .where(Event.editorial_priority == "Critical")
-            .order_by(Event.importance_score.desc())
+            .where(Event.homepage_section == "critical")
+            .order_by(
+                Event.briefing_rank.desc(),
+                Event.updated_at.desc(),
+            )
         ).all()
 
         watch_events = session.scalars(
             select(Event)
-            .where(Event.editorial_priority == "Watch")
-            .order_by(Event.importance_score.desc())
+            .where(Event.homepage_section == "watch")
+            .order_by(
+                Event.briefing_rank.desc(),
+                Event.updated_at.desc(),
+            )
         ).all()
 
         return {

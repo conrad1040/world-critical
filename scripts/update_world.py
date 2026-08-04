@@ -3,6 +3,7 @@ from app.services.event_category_update_service import update_event_categories
 from app.services.event_detection_service import detect_events
 from app.services.event_metrics_service import update_event_metrics
 from app.services.event_refresh_service import refresh_event_text
+from app.services.homepage_curation_service import curate_homepage
 from app.services.importance_scoring_service import update_importance_scores
 from app.services.event_consolidation_runner import (
     consolidate_events,
@@ -22,9 +23,6 @@ def main() -> None:
     events_merged = consolidate_events()
     print(f"Events merged: {events_merged}")
 
-    text_updated = refresh_event_text()
-    print(f"Event text updated: {text_updated}")
-
     categories_updated = update_event_categories()
     print(f"Event categories updated: {categories_updated}")
 
@@ -33,6 +31,17 @@ def main() -> None:
 
     scores_updated = update_importance_scores()
     print(f"Importance scores updated: {scores_updated}")
+
+    text_updated = refresh_event_text()
+    print(f"Event text updated: {text_updated}")
+
+    briefing = curate_homepage()
+    print(
+        "Homepage briefing curated: "
+        f"{briefing['critical_count']} critical, "
+        f"{briefing['watch_count']} watch "
+        f"({briefing['mode']})"
+    )
 
     print("Update complete.")
 

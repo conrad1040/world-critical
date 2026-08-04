@@ -34,39 +34,6 @@ const categoryStyles: Record<string, string> = {
   Other: "bg-slate-100 text-slate-600",
 };
 
-function getRelativeTime(dateString: string): string {
-  const updatedTime = new Date(dateString).getTime();
-
-  if (Number.isNaN(updatedTime)) {
-    return "Recently updated";
-  }
-
-  const seconds = Math.max(
-    0,
-    Math.floor((Date.now() - updatedTime) / 1000),
-  );
-
-  if (seconds < 60) {
-    return "Updated just now";
-  }
-
-  const minutes = Math.floor(seconds / 60);
-
-  if (minutes < 60) {
-    return `Updated ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-
-  if (hours < 24) {
-    return `Updated ${hours} hour${hours === 1 ? "" : "s"} ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-
-  return `Updated ${days} day${days === 1 ? "" : "s"} ago`;
-}
-
 function EventRow({
   event,
   priority,
@@ -100,10 +67,6 @@ function EventRow({
             className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryClass}`}
           >
             {event.category}
-          </span>
-
-          <span className="text-xs text-slate-400">
-            {getRelativeTime(event.updated_at)}
           </span>
         </div>
 

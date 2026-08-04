@@ -521,3 +521,78 @@ def generate_event_merge_decision(
         "confidence": confidence,
         "reasoning": str(data["reasoning"]),
     }
+
+
+def generate_homepage_curation(
+    candidates: list[dict[str, str | int | None]],
+    critical_cap: int,
+    watch_cap: int,
+) -> dict[str, object]:
+    candidate_text = "\n\n".join(
+        (
+            f"Event ID: {candidate['id']}\n"
+            f"Tracking Tier: {candidate['editorial_priority']}\n"
+            f"Title: {candidate['title']}\n"
+            f"Summary: {candidate['summary']}\n"
+            f"Latest Development: "
+            f"{candidate['latest_development'] or 'None'}\n"
+            f"Category: {candidate['category']}\n"
+            f"Impact Scope: {candidate['impact_scope']}\n"
+            f"Confidence: {candidate['confidence']}\n"
+            f"Coverage Score: {candidate['importance_score']}\n"
+            f"Sources: {candidate['source_count']}\n"
+            f"Articles: {candidate['article_count']}"
+        )
+        for candidate in candidates
+    )
+
+    response = client.responses.create(
+        model="gpt-5-mini",
+        input=(
+            "You are the homepage editor for World Critical.\n\n"
+            "World Critical is not a news feed. The homepage is a daily "
+            "editorial briefing that answers one question:\n"
+            "\"Is there anything I really need to know today?\"\n\n"
+            "Select events for TODAY's homepage only.\n\n"
+            "Rules:\n"
+            f"- Select at most {critical_cap} events for the Critical section.\n"
+            f"- Select at most {watch_cap} events for the Watch section.\n"
+            "- Critical: events a broadly informed adult would likely regret "
+            "completely missing today.\n"
+            "- Watch: events worth monitoring today but not yet clearly "
+            "briefing-worthy.\n"
+            "- Exclude events where nothing homepage-worthy changed today.\n"
+            "- Additional source confirmation alone is NOT a reason to include "
+            "an event.\n"
+            "- Coverage score reflects volume, not editorial judgment. Do not "
+            "treat it as primary ranking input.\n"
+            "- At most ONE homepage event per macro story. Different angles "
+            "on the same evolving situation — such as Iran strikes, Iran "
+            "negotiations, Iran oil markets, and Congress briefings on Iran — "
+            "count as ONE macro story. Pick the single best representative.\n"
+            "- briefing_rank is editorial importance FOR TODAY within the "
+            "section (1-100). A major geopolitical crisis should outrank a "
+            "newer but less consequential story.\n"
+            "- macro_story is a short slug grouping related events "
+            "(example: iran-crisis, washington-wildfires).\n"
+            "- Prefer fewer, stronger selections over filling every slot.\n\n"
+            "CANDIDATE EVENTS\n\n"
+            f"{candidate_text}\n\n"
+            "Return only valid JSON with exactly these fields:\n"
+            "{"
+            '"critical":[{"event_id":1,"briefing_rank":95,'
+            '"macro_story":"iran-crisis"}],'
+            '"watch":[{"event_id":2,"briefing_rank":60,'
+            '"macro_story":"washington-wildfires"}],'
+            '"reasoning":"..."'
+            "}"
+        ),
+    )
+
+    data = json.loads(response.output_text)
+
+    return {
+        "critical": data.get("critical", []),
+        "watch": data.get("watch", []),
+        "reasoning": str(data.get("reasoning", "")),
+    }

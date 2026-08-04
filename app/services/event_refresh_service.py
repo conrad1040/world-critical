@@ -94,10 +94,6 @@ def refresh_event_text() -> int:
             event.confidence = evaluation["confidence"]
             event.editorial_priority = final_priority
 
-            event.homepage = (
-                final_priority == "Critical"
-            )
-
             event.needs_refresh = False
 
             for article in new_articles:
