@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SearchForm } from "./components/search-form";
+
 type Event = {
   id: number;
   title: string;
@@ -173,6 +175,10 @@ export default async function Home() {
                 The few stories that matter today.
               </p>
             </div>
+          </div>
+
+          <div className="mt-6">
+            <SearchForm />
           </div>
         </div>
       </header>

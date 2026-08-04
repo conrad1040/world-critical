@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.schemas.event import EventResponse
 from app.services.event_detail_service import get_event
+from app.services.event_search_service import search_events
 from app.services.events_service import get_events
 
 router = APIRouter()
@@ -10,6 +11,13 @@ router = APIRouter()
 @router.get("/events")
 def read_events():
     return get_events()
+
+
+@router.get("/events/search")
+def read_event_search(
+    q: str = Query(default=""),
+):
+    return search_events(q)
 
 
 @router.get(
