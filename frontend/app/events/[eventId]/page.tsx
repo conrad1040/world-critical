@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { getApiUrl } from "../../../lib/api";
+
 type Article = {
   title: string;
   url: string;
@@ -116,7 +118,7 @@ export default async function EventPage({ params }: EventPageProps) {
   const { eventId } = await params;
 
   const response = await fetch(
-    `http://127.0.0.1:8000/events/${eventId}`,
+    getApiUrl(`/events/${eventId}`),
     {
       cache: "no-store",
     },

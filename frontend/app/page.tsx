@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { getApiUrl } from "../lib/api";
 import { SearchForm } from "./components/search-form";
 
 type Event = {
@@ -147,7 +148,7 @@ function EventRow({
 }
 
 export default async function Home() {
-  const response = await fetch("http://127.0.0.1:8000/events", {
+  const response = await fetch(getApiUrl("/events"), {
     cache: "no-store",
   });
 

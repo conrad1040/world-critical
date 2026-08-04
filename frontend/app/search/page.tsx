@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { getApiUrl } from "../../lib/api";
 import { SearchForm } from "../components/search-form";
 
 type Event = {
@@ -97,7 +98,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   if (query.length >= 2) {
     const response = await fetch(
-      `http://127.0.0.1:8000/events/search?q=${encodeURIComponent(query)}`,
+      getApiUrl(`/events/search?q=${encodeURIComponent(query)}`),
       {
         cache: "no-store",
       },
