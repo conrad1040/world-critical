@@ -11,6 +11,7 @@ type EventDetail = {
   id: number;
   title: string;
   summary: string;
+  latest_development: string | null;
   why_it_matters: string | null;
   what_happens_next: string | null;
   impact_scope: string;
@@ -227,6 +228,18 @@ export default async function EventPage({ params }: EventPageProps) {
               {event.summary}
             </p>
           </section>
+
+          {event.latest_development && (
+            <section>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-700">
+                Latest development
+              </p>
+
+              <p className="mt-4 text-lg leading-8 text-slate-700">
+                {event.latest_development}
+              </p>
+            </section>
+          )}
 
           {event.why_it_matters && (
             <section>

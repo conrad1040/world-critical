@@ -42,6 +42,7 @@ def get_event(event_id: int) -> dict | None:
             "id": event.id,
             "title": event.title,
             "summary": event.summary,
+            "latest_development": event.latest_development,
             "why_it_matters": event.why_it_matters,
             "what_happens_next": event.what_happens_next,
             "impact_scope": event.impact_scope,

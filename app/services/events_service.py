@@ -11,6 +11,7 @@ def serialize_event(event: Event) -> dict:
         "id": event.id,
         "title": event.title,
         "summary": event.summary,
+        "latest_development": event.latest_development,
         "category": event.category,
         "importance_score": event.importance_score,
         "article_count": event.article_count,

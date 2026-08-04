@@ -4,6 +4,7 @@ type Event = {
   id: number;
   title: string;
   summary: string;
+  latest_development: string | null;
   category: string;
   importance_score: number;
   article_count: number;
@@ -110,6 +111,18 @@ function EventRow({
         <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">
           {event.summary}
         </p>
+
+        {event.latest_development && (
+          <div className="mt-5 max-w-3xl border-l-2 border-blue-200 pl-4">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
+              Latest development
+            </p>
+
+            <p className="mt-2 text-base leading-8 text-slate-700 sm:text-lg">
+              {event.latest_development}
+            </p>
+          </div>
+        )}
 
         <div className="mt-6 flex flex-wrap gap-6 text-sm font-medium text-slate-500">
           <span>

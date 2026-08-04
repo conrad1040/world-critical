@@ -14,6 +14,7 @@ class EventResponse(BaseModel):
     id: int
     title: str
     summary: str
+    latest_development: str | None = None
     why_it_matters: str | None
     what_happens_next: str | None
     impact_scope: str
