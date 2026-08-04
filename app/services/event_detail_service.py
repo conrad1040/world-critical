@@ -4,6 +4,7 @@ from app.database.session import SessionLocal
 from app.models.article import Article
 from app.models.event import Event
 from app.models.source import Source
+from app.services.events_service import PUBLIC_PRIORITIES
 
 
 def get_event(event_id: int) -> dict | None:
@@ -11,6 +12,9 @@ def get_event(event_id: int) -> dict | None:
         event = session.get(Event, event_id)
 
         if event is None:
+            return None
+
+        if event.editorial_priority not in PUBLIC_PRIORITIES:
             return None
 
         articles = session.scalars(

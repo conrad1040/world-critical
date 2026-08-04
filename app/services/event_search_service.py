@@ -2,11 +2,15 @@ from sqlalchemy import or_, select
 
 from app.database.session import SessionLocal
 from app.models.event import Event
-from app.services.events_service import serialize_event
+from app.services.events_service import (
+    PUBLIC_PRIORITIES,
+    serialize_event,
+)
 
 MIN_QUERY_LENGTH = 2
+MAX_QUERY_LENGTH = 200
 
-SEARCHABLE_PRIORITIES = ("Critical", "Watch")
+SEARCHABLE_PRIORITIES = PUBLIC_PRIORITIES
 
 
 def _escape_like(value: str) -> str:
@@ -18,7 +22,7 @@ def _escape_like(value: str) -> str:
 
 
 def search_events(query: str) -> dict:
-    normalized_query = query.strip()
+    normalized_query = query.strip()[:MAX_QUERY_LENGTH]
 
     if len(normalized_query) < MIN_QUERY_LENGTH:
         return {

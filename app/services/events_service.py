@@ -6,6 +6,9 @@ from app.database.session import SessionLocal
 from app.models.event import Event
 
 
+PUBLIC_PRIORITIES = ("Critical", "Watch")
+
+
 def serialize_event(event: Event) -> dict:
     return {
         "id": event.id,
