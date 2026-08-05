@@ -7,4 +7,4 @@ engine = create_engine(DATABASE_URL, echo=False)
 
 def connect():
     with engine.connect() as connection:
-        print("✅ Connected to PostgreSQL!")
+        print("Connected to PostgreSQL!")
