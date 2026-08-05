@@ -159,15 +159,41 @@ function EventRow({
 }
 
 export default async function Home() {
-  const response = await fetch(getApiUrl("/events"), {
-    cache: "no-store",
-  });
+  let data: EventsResponse;
 
-  if (!response.ok) {
-    throw new Error("Failed to load events");
+  try {
+    const response = await fetch(getApiUrl("/events"), {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+
+    data = await response.json();
+  } catch {
+    return (
+      <main className="bg-slate-100">
+        <SiteHeader />
+
+        <div className="mx-auto max-w-6xl bg-slate-50 px-6 py-8">
+          <h2 className="text-2xl font-black text-slate-950">
+            Cannot reach the API
+          </h2>
+
+          <p className="mt-4 max-w-2xl leading-7 text-slate-600">
+            Start the backend, then refresh this page:
+          </p>
+
+          <pre className="mt-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100">
+            cd c:\Projects\WorldCritical{"\n"}
+            set PYTHONPATH=c:\Projects\WorldCritical{"\n"}
+            python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+          </pre>
+        </div>
+      </main>
+    );
   }
-
-  const data: EventsResponse = await response.json();
 
   return (
     <main className="bg-slate-100">

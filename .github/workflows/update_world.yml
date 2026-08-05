@@ -1,9 +1,10 @@
 name: Update World
 
+# Manual runs only until NewsAPI quota resets and Neon is seeded.
+# To re-enable automatic updates, restore the schedule block:
+#   schedule:
+#     - cron: "0 11,17,23 * * *"
 on:
-  schedule:
-    # 7am, 1pm, and 7pm US Eastern (11:00, 17:00, 23:00 UTC during EDT)
-    - cron: "0 11,17,23 * * *"
   workflow_dispatch:
 
 concurrency:
